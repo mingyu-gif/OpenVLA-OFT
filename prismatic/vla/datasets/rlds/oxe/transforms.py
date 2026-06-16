@@ -847,6 +847,13 @@ def aloha_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
 
 
 # === Registry ===
+def ur5e_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+    import tensorflow as tf
+    traj_len = tf.shape(trajectory["action"])[0]
+    trajectory["absolute_action_mask"] = tf.ones(traj_len, dtype=tf.bool)
+    return trajectory
+
+
 OXE_STANDARDIZATION_TRANSFORMS = {
     "bridge_oxe": bridge_oxe_dataset_transform,
     "bridge_orig": bridge_orig_dataset_transform,
@@ -930,4 +937,6 @@ OXE_STANDARDIZATION_TRANSFORMS = {
     "aloha1_fold_shirt_30_demos": aloha_dataset_transform,
     "aloha1_scoop_X_into_bowl_45_demos": aloha_dataset_transform,
     "aloha1_put_X_into_pot_300_demos": aloha_dataset_transform,
+    ### UR5e datasets
+    "ur5e_pick_and_place_dataset": ur5e_dataset_transform,
 }

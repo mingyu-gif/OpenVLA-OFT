@@ -74,7 +74,7 @@ class FinetuneConfig:
     data_root_dir: Path = Path("datasets/rlds")      # Directory containing RLDS datasets
     dataset_name: str = "aloha_scoop_x_into_bowl"    # Name of fine-tuning dataset (e.g., `aloha_scoop_x_into_bowl`)
     run_root_dir: Path = Path("runs")                # Path to directory to store logs & checkpoints
-    shuffle_buffer_size: int = 100_000               # Dataloader shuffle buffer size (can reduce if OOM errors occur)
+    shuffle_buffer_size: int = 50_000               # Dataloader shuffle buffer size (can reduce if OOM errors occur)
 
     # Algorithm and architecture
     use_l1_regression: bool = True                   # If True, trains continuous action head with L1 regression objective
@@ -1099,7 +1099,11 @@ def finetune(cfg: FinetuneConfig) -> None:
                 progress.update()
 
             # Save model checkpoint: either keep latest checkpoint only or all checkpoints
-            if gradient_step_idx > 0 and log_step % cfg.save_freq == 0:
+            if (
+                gradient_step_idx > 0
+                and log_step % cfg.save_freq == 0
+                and (batch_idx + 1) % cfg.grad_accumulation_steps == 0
+            ):
                 save_training_checkpoint(
                     cfg=cfg,
                     run_dir=run_dir,
